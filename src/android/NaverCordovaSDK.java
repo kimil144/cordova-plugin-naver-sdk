@@ -65,7 +65,7 @@ public class NaverCordovaSDK extends CordovaPlugin {
 
                     @Override
                     public void onSuccess() {
-                        String accessToken = NaverIdLoginSDK.INSTANCE.getAccessToken();
+                        String accessToken =     NaverIdLoginSDK.INSTANCE.getAccessToken();
                         String refreshToken = NaverIdLoginSDK.INSTANCE.getRefreshToken();
                         long expiresAt = NaverIdLoginSDK.INSTANCE.getExpiresAt();
                         String tokenType = NaverIdLoginSDK.INSTANCE.getTokenType();

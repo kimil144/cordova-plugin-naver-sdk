@@ -4,6 +4,6 @@ repositories {
 }
 
 dependencies {
-	implementation 'com.navercorp.nid:oauth:5.11.0' // jdk 17
+	implementation 'com.navercorp.nid:oauth:5.2.1' // jdk 11
 	implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
 }
