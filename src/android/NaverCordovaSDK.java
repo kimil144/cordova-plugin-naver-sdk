@@ -2,7 +2,7 @@ package com.raccoondev85.plugin.naver;
 
 import com.navercorp.nid.NaverIdLoginSDK;
 import com.navercorp.nid.oauth.NidOAuthLogin;
-import com.navercorp.nid.oauth.OAuthLoginCallback;
+import com.navercorp.nid.oauth.util.NidOAuthCallback;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
@@ -61,7 +61,7 @@ public class NaverCordovaSDK extends CordovaPlugin {
         cordova.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                NaverIdLoginSDK.INSTANCE.authenticate(cordova.getActivity(), new OAuthLoginCallback() {
+                NaverIdLoginSDK.INSTANCE.authenticate(cordova.getActivity(), new NidOAuthCallback() {
 
                     @Override
                     public void onSuccess() {
@@ -95,24 +95,16 @@ public class NaverCordovaSDK extends CordovaPlugin {
                     }
 
                     @Override
-                    public void onFailure(int httpStatus, String message) {
-                        String errorCode = NaverIdLoginSDK.INSTANCE.getLastErrorCode().getCode();
-                        String errorDescription = NaverIdLoginSDK.INSTANCE.getLastErrorDescription();
-
+                    public void onFailure(String errorCode, String message) {
                         JSONObject resultObject = new JSONObject();
                         try {
                             resultObject.put("code", errorCode);
-                            resultObject.put("description", errorDescription);
+                            resultObject.put("description", message);
 
                             callbackContext.error(resultObject);
                         } catch (JSONException e) {
                             callbackContext.error(e.getMessage());
                         }
-                    }
-
-                    @Override
-                    public void onError(int errorCode, String message) {
-                        onFailure(errorCode, message);
                     }
                 });
             }
@@ -121,72 +113,73 @@ public class NaverCordovaSDK extends CordovaPlugin {
     }
 
 
-    private void logout(CallbackContext callbackContext) {
-        NaverIdLoginSDK.INSTANCE.logout();
-        callbackContext.success();
+    private void logout(final CallbackContext callbackContext) {
+        NaverIdLoginSDK.INSTANCE.logout(new NidOAuthCallback() {
+            @Override
+            public void onSuccess() {
+                callbackContext.success();
+            }
+
+            @Override
+            public void onFailure(String errorCode, String message) {
+                JSONObject resultObject = new JSONObject();
+                try {
+                    resultObject.put("code", errorCode);
+                    resultObject.put("description", message);
+
+                    callbackContext.error(resultObject);
+                } catch (JSONException e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
     }
 
 
     private void unlinkApp(CallbackContext callbackContext) {
 
         NidOAuthLogin login = new NidOAuthLogin();
-        login.callDeleteTokenApi(cordova.getActivity(), new OAuthLoginCallback() {
+        login.callDeleteTokenApi(new NidOAuthCallback() {
             @Override
             public void onSuccess() {
                 callbackContext.success();
            }
 
             @Override
-            public void onFailure(int httpStatus, String message) {
-                String errorCode = NaverIdLoginSDK.INSTANCE.getLastErrorCode().getCode();
-                String errorDescription = NaverIdLoginSDK.INSTANCE.getLastErrorDescription();
-
+            public void onFailure(String errorCode, String message) {
                 JSONObject resultObject = new JSONObject();
                 try {
                     resultObject.put("code", errorCode);
-                    resultObject.put("description", errorDescription);
+                    resultObject.put("description", message);
 
                     callbackContext.error(resultObject);
                 } catch (JSONException e) {
                     callbackContext.error(e.getMessage());
                 }
            }
-
-            @Override
-            public void onError(int errorCode, String message) {
-                onFailure(errorCode, message);
-            }
         });
     }
 
 
     private void refreshAccessToken(CallbackContext callbackContext) {
         NidOAuthLogin login = new NidOAuthLogin();
-        login.callRefreshAccessTokenApi(cordova.getActivity(), new OAuthLoginCallback() {
+        login.callRefreshAccessTokenApi(new NidOAuthCallback() {
             @Override
             public void onSuccess() {
                 callbackContext.success(NaverIdLoginSDK.INSTANCE.getAccessToken());
             }
 
             @Override
-            public void onFailure(int httpStatus, String message) {
-                String errorCode = NaverIdLoginSDK.INSTANCE.getLastErrorCode().getCode();
-                String errorDescription = NaverIdLoginSDK.INSTANCE.getLastErrorDescription();
-
+            public void onFailure(String errorCode, String message) {
                 JSONObject resultObject = new JSONObject();
                 try {
                     resultObject.put("code", errorCode);
-                    resultObject.put("description", errorDescription);
+                    resultObject.put("description", message);
 
                     callbackContext.error(resultObject);
                 } catch (JSONException e) {
                     callbackContext.error(e.getMessage());
                 }
-            }
-
-            @Override
-            public void onError(int errorCode, String message) {
-                onFailure(errorCode, message);
             }
         });
     }
